@@ -21,7 +21,7 @@ export default function Admin() {
   const [users, setUsers] = useState([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
-  const [form, setForm] = useState({ name: '', description: '', price: '', category: 'fruits', stock: '', image_url: '' });
+  const [form, setForm] = useState({ name: '', description: '', price: '', category: 'fresh_produce', stock: '', unit: 'stock', image_url: '' });
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [isOrderDetailsOpen, setIsOrderDetailsOpen] = useState(false);
 
@@ -73,6 +73,7 @@ export default function Admin() {
       price: parseFloat(form.price),
       category: form.category,
       stock: parseInt(form.stock),
+      unit: form.unit,
       image_url: form.image_url || null,
     };
 
@@ -94,7 +95,7 @@ export default function Admin() {
         toast.success(editingProduct ? 'Product updated!' : 'Product added!');
         setIsDialogOpen(false);
         setEditingProduct(null);
-        setForm({ name: '', description: '', price: '', category: 'fruits', stock: '', image_url: '' });
+        setForm({ name: '', description: '', price: '', category: 'fresh_produce', stock: '', unit: 'stock', image_url: '' });
         fetchProducts();
       } else {
         throw new Error('Failed to save product');
@@ -151,6 +152,7 @@ export default function Admin() {
       price: product.price.toString(),
       category: product.category,
       stock: product.stock.toString(),
+      unit: product.unit || 'stock',
       image_url: product.image_url || '',
     });
     setIsDialogOpen(true);
@@ -260,7 +262,7 @@ export default function Admin() {
                 </Select>
               </div>
               <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-                <DialogTrigger asChild><Button onClick={() => { setEditingProduct(null); setForm({ name: '', description: '', price: '', category: 'fruits', stock: '', image_url: '' }); }} className="w-full md:w-auto"><Plus className="mr-2 h-4 w-4" />Add Product</Button></DialogTrigger>
+                <DialogTrigger asChild><Button onClick={() => { setEditingProduct(null); setForm({ name: '', description: '', price: '', category: 'fresh_produce', stock: '', unit: 'stock', image_url: '' }); }} className="w-full md:w-auto"><Plus className="mr-2 h-4 w-4" />Add Product</Button></DialogTrigger>
                 <DialogContent>
                   <DialogHeader><DialogTitle>{editingProduct ? 'Edit Product' : 'Add Product'}</DialogTitle></DialogHeader>
                   <div className="space-y-4">
@@ -268,7 +270,19 @@ export default function Admin() {
                     <div><Label>Description</Label><Input value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} /></div>
                     <div className="grid grid-cols-2 gap-4">
                       <div><Label>Price ($)</Label><Input type="number" value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} /></div>
-                      <div><Label>Stock</Label><Input type="number" value={form.stock} onChange={(e) => setForm({ ...form, stock: e.target.value })} /></div>
+                      <div>
+                        <Label>Stock</Label>
+                        <div className="flex gap-2">
+                          <Input type="number" value={form.stock} onChange={(e) => setForm({ ...form, stock: e.target.value })} className="flex-1" />
+                          <Select value={form.unit} onValueChange={(v) => setForm({ ...form, unit: v })}>
+                            <SelectTrigger className="w-24"><SelectValue /></SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="stock">Count</SelectItem>
+                              <SelectItem value="kg">Kg</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </div>
                     </div>
                     <div><Label>Category</Label>
                       <Select value={form.category} onValueChange={(v) => setForm({ ...form, category: v })}>
@@ -309,7 +323,7 @@ export default function Admin() {
                       <td className="p-4 font-semibold price-tag">${p.price.toFixed(2)}</td>
                       <td className="p-4">
                         <Badge variant={p.stock < 10 ? 'destructive' : 'outline'} className="font-mono">
-                          {p.stock}
+                          {p.stock} {p.unit === 'kg' ? 'kg' : ''}
                         </Badge>
                       </td>
                       <td className="p-4 text-right">

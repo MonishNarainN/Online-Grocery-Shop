@@ -13,7 +13,7 @@ export function ProductCard({ product }) {
   const quantityInCart = cartItem?.quantity || 0;
 
   const handleAddToCart = () => {
-    addToCart(product.id, 1);
+    addToCart(product, 1);
   };
 
   const handleIncrement = () => {

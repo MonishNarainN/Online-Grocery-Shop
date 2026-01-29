@@ -6,6 +6,7 @@ const productSchema = new mongoose.Schema({
     price: { type: Number, required: true },
     category: { type: String, required: true },
     stock: { type: Number, default: 0 },
+    unit: { type: String, default: 'stock' }, // 'stock' (count) or 'kg'
     image_url: { type: String },
     is_active: { type: Boolean, default: true },
     created_at: { type: Date, default: Date.now },

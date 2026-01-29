@@ -26,10 +26,12 @@ export default function Products() {
     fetchProducts();
   }, []);
 
-  const filteredProducts = products.filter(p =>
-    p.name.toLowerCase().includes(search.toLowerCase()) ||
-    p.description?.toLowerCase().includes(search.toLowerCase())
-  );
+  const filteredProducts = products.filter(p => {
+    const matchesSearch = p.name.toLowerCase().includes(search.toLowerCase()) ||
+      p.description?.toLowerCase().includes(search.toLowerCase());
+    const matchesCategory = category ? p.category === category : true;
+    return matchesSearch && matchesCategory;
+  });
 
   return (
     <Layout>

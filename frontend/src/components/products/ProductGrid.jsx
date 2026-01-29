@@ -1,3 +1,5 @@
+import { ProductCard } from './ProductCard';
+
 export function ProductGrid({ products, isLoading }) {
   if (isLoading) {
     return (

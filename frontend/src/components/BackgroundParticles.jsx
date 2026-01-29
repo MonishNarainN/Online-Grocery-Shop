@@ -53,7 +53,7 @@ const ParticleField = () => {
       const pos = mesh.current.geometry.attributes.position.array;
       for (let i = 0; i < count; i++) {
         // Slow vertical descent
-        pos[i * 3 + 1] -= 0.008;
+        pos[i * 3 + 1] -= 0.005;
 
         // Horizontal sway (drift) for flake effect
         pos[i * 3] += Math.sin(time + i) * 0.005;
