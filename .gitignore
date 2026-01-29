@@ -1,22 +1,6 @@
-# Node dependencies
 node_modules/
-
-# Environment variables
+.vite/
+frontend/.vite/
 .env
-
-# Production builds
-dist/
-build/
-
-# Logs
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-
-# OS files
-.DS_Store
-Thumbs.db
-
-# Editor folders
-.vscode/
-.idea/
+dist
+build
