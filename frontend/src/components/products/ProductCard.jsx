@@ -41,6 +41,11 @@ export function ProductCard({ product }) {
             src={product.image_url}
             alt={product.name}
             className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+            onError={(e) => {
+              e.target.onerror = null;
+              e.target.src = "https://placehold.co/400x400?text=No+Image";
+              e.target.parentElement.innerHTML = '<div class="h-full w-full flex items-center justify-center text-4xl bg-secondary">🛒</div>';
+            }}
           />
         ) : (
           <div className="h-full w-full flex items-center justify-center text-4xl">
@@ -69,7 +74,7 @@ export function ProductCard({ product }) {
 
         {/* Price & Stock */}
         <div className="flex items-center justify-between mb-3">
-          <span className="price-tag text-lg">${product.price.toFixed(2)}</span>
+          <span className="price-tag text-lg">₹{product.price.toFixed(2)}</span>
           {product.stock > 0 ? (
             <span className="text-xs text-success font-medium">
               In Stock ({product.stock})

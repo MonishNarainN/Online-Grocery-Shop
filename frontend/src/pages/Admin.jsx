@@ -206,7 +206,7 @@ export default function Admin() {
           <div className="bg-card/30 backdrop-blur-xl border border-white/5 p-6 rounded-2xl shadow-xl">
             <div className="flex items-center justify-between mb-4">
               <div className="p-3 bg-green-500/20 rounded-xl text-green-500"><DollarSign className="h-6 w-6" /></div>
-              <span className="text-2xl font-bold price-tag">${stats.totalSales.toFixed(2)}</span>
+              <span className="text-2xl font-bold price-tag">₹{stats.totalSales.toFixed(2)}</span>
             </div>
             <p className="text-sm text-muted-foreground font-medium">Total Revenue</p>
           </div>
@@ -269,7 +269,7 @@ export default function Admin() {
                     <div><Label>Name</Label><Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} /></div>
                     <div><Label>Description</Label><Input value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} /></div>
                     <div className="grid grid-cols-2 gap-4">
-                      <div><Label>Price ($)</Label><Input type="number" value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} /></div>
+                      <div><Label>Price (₹)</Label><Input type="number" value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} /></div>
                       <div>
                         <Label>Stock</Label>
                         <div className="flex gap-2">
@@ -312,7 +312,7 @@ export default function Admin() {
                     <tr key={p.id} className="hover:bg-white/5 transition-colors">
                       <td className="p-4">
                         <div className="flex items-center gap-3">
-                          {p.image_url && <img src={p.image_url} alt={p.name} className="h-10 w-10 rounded-lg object-cover border border-white/10" />}
+                          {p.image_url && <img src={p.image_url} alt={p.name} className="h-10 w-10 rounded-lg object-cover border border-white/10" onError={(e) => e.target.style.display = 'none'} />}
                           <div>
                             <p className="font-medium">{p.name}</p>
                             {!p.is_active && <Badge variant="secondary" className="text-[10px] h-4">Inactive</Badge>}
@@ -320,7 +320,7 @@ export default function Admin() {
                         </div>
                       </td>
                       <td className="p-4 text-sm">{CATEGORY_LABELS[p.category]}</td>
-                      <td className="p-4 font-semibold price-tag">${p.price.toFixed(2)}</td>
+                      <td className="p-4 font-semibold price-tag">₹{p.price.toFixed(2)}</td>
                       <td className="p-4">
                         <Badge variant={p.stock < 10 ? 'destructive' : 'outline'} className="font-mono">
                           {p.stock} {p.unit === 'kg' ? 'kg' : ''}
@@ -393,7 +393,7 @@ export default function Admin() {
                       <span>{order.items.length} items</span>
                       <Button variant="link" size="sm" onClick={() => { setSelectedOrder(order); setIsOrderDetailsOpen(true); }} className="p-0 h-auto text-primary">View Details</Button>
                     </div>
-                    <span className="font-semibold price-tag">${order.total_amount.toFixed(2)}</span>
+                    <span className="font-semibold price-tag">₹{order.total_amount.toFixed(2)}</span>
                   </div>
                 </div>
               ))}
@@ -417,17 +417,17 @@ export default function Admin() {
                           {item.image_url && <img src={item.image_url} alt={item.name} className="h-10 w-10 rounded-md object-cover" />}
                           <div>
                             <p className="font-medium text-sm">{item.name}</p>
-                            <p className="text-xs text-muted-foreground">${item.price.toFixed(2)} x {item.quantity}</p>
+                            <p className="text-xs text-muted-foreground">₹{item.price.toFixed(2)} x {item.quantity}</p>
                           </div>
                         </div>
-                        <p className="font-semibold text-sm">${(item.price * item.quantity).toFixed(2)}</p>
+                        <p className="font-semibold text-sm">₹{(item.price * item.quantity).toFixed(2)}</p>
                       </div>
                     ))}
                   </div>
                   <div className="pt-4 border-t border-white/10">
                     <div className="flex justify-between font-bold text-lg">
                       <span>Total Amount</span>
-                      <span className="price-tag">${selectedOrder?.total_amount.toFixed(2)}</span>
+                      <span className="price-tag">₹{selectedOrder?.total_amount.toFixed(2)}</span>
                     </div>
                   </div>
                 </div>

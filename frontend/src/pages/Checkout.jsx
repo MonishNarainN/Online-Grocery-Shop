@@ -4,12 +4,14 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { Package, ShoppingCart } from 'lucide-react';
 import { Layout } from '@/components/layout/Layout';
 import { useCart } from '@/contexts/CartContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
+
 export default function Checkout() {
-  const { user } = useAuth();
+  const { user, addAddress } = useAuth();
   const { items, totalPrice, clearCart } = useCart();
   const navigate = useNavigate();
   const [address, setAddress] = useState('');
@@ -81,13 +83,78 @@ export default function Checkout() {
               <h2 className="text-xl font-semibold mb-6 flex items-center gap-2">
                 <Package className="h-5 w-5 text-primary" /> Delivery Address
               </h2>
-              <Textarea
-                value={address}
-                onChange={(e) => setAddress(e.target.value)}
-                placeholder="Enter your full delivery address..."
-                rows={4}
-                className="bg-card/20 border-white/10 focus:border-primary/50 transition-colors"
-              />
+
+              {/* Saved Addresses */}
+              {user?.saved_addresses?.length > 0 && (
+                <div className="grid gap-4 mb-6">
+                  {user.saved_addresses.map((addr, idx) => (
+                    <div
+                      key={idx}
+                      className={`p-4 rounded-xl border cursor-pointer transition-all ${address === addr.address_line ? 'border-primary bg-primary/10' : 'border-white/10 hover:bg-white/5'}`}
+                      onClick={() => setAddress(addr.address_line)}
+                    >
+                      <div className="font-semibold text-sm mb-1">{addr.label || 'Saved Address'}</div>
+                      <div className="text-sm text-muted-foreground">
+                        {addr.address_line}, {addr.city} - {addr.pincode}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Add New Address Trigger */}
+              <div className="space-y-4">
+                <Label className="text-sm font-medium">Add New Address</Label>
+                <div className="grid gap-4 p-4 border border-white/10 rounded-xl bg-black/20">
+                  <Input
+                    placeholder="Label (e.g., Home, Work)"
+                    id="new-addr-label"
+                    className="bg-card/20 border-white/10"
+                  />
+                  <Input
+                    placeholder="Address Line"
+                    id="new-addr-line"
+                    className="bg-card/20 border-white/10"
+                  />
+                  <div className="grid grid-cols-2 gap-4">
+                    <Input
+                      placeholder="City"
+                      id="new-addr-city"
+                      defaultValue="Tiruvannamalai"
+                      readOnly
+                      className="bg-card/20 border-white/10 opacity-70 cursor-not-allowed"
+                    />
+                    <Input
+                      placeholder="Pincode"
+                      id="new-addr-pin"
+                      className="bg-card/20 border-white/10"
+                    />
+                  </div>
+                  <Button variant="secondary" size="sm" onClick={async () => {
+                    const label = document.getElementById('new-addr-label').value;
+                    const line = document.getElementById('new-addr-line').value;
+                    const city = document.getElementById('new-addr-city').value;
+                    const pin = document.getElementById('new-addr-pin').value;
+
+                    if (!line || !city || !pin) return toast.error("Please fill address details");
+                    if (city !== "Tiruvannamalai") return toast.error("We only serve within Tiruvannamalai");
+
+                    const { error } = await addAddress({ label, address_line: line, city, pincode: pin }); // Using context function
+                    if (!error) {
+                      toast.success("Address added!");
+                      setAddress(line); // Auto-select
+                      // clear fields
+                      document.getElementById('new-addr-label').value = '';
+                      document.getElementById('new-addr-line').value = '';
+                      document.getElementById('new-addr-pin').value = '';
+                    } else {
+                      toast.error(error.message || "Failed to save address");
+                    }
+                  }}>
+                    Save & Use Address
+                  </Button>
+                </div>
+              </div>
             </div>
 
             <div className="bg-card/30 backdrop-blur-xl border border-white/5 rounded-2xl p-6 shadow-xl">
@@ -101,18 +168,18 @@ export default function Checkout() {
                       <span className="font-medium">{item.product?.name}</span>
                       <span className="text-muted-foreground">x{item.quantity}</span>
                     </div>
-                    <span className="font-semibold">${(item.product?.price * item.quantity).toFixed(2)}</span>
+                    <span className="font-semibold">₹{(item.product?.price * item.quantity).toFixed(2)}</span>
                   </div>
                 ))}
               </div>
               <div className="pt-4 border-t border-white/10 space-y-2">
                 <div className="flex justify-between text-sm text-muted-foreground">
                   <span>Subtotal</span>
-                  <span>${totalPrice.toFixed(2)}</span>
+                  <span>₹{totalPrice.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between text-sm text-muted-foreground">
                   <span>Shipping</span>
-                  <span>$2.99</span>
+                  <span>₹29.00</span>
                 </div>
               </div>
             </div>
@@ -134,7 +201,7 @@ export default function Checkout() {
               <div className="pt-6 border-t border-white/10 mb-6">
                 <div className="flex justify-between items-center mb-6">
                   <span className="font-semibold text-lg text-muted-foreground">Order Total</span>
-                  <span className="text-2xl font-bold price-tag">${(totalPrice + 2.99).toFixed(2)}</span>
+                  <span className="text-2xl font-bold price-tag">₹{(totalPrice + 29).toFixed(2)}</span>
                 </div>
                 <Button className="w-full h-12 text-lg font-bold shadow-lg shadow-primary/20" onClick={handlePlaceOrder} disabled={isProcessing}>
                   {isProcessing ? 'Processing Order...' : 'Submit Payment'}

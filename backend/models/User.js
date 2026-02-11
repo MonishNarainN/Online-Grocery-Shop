@@ -6,6 +6,13 @@ const userSchema = new mongoose.Schema({
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
     role: { type: String, enum: ['customer', 'admin'], default: 'customer' },
+    saved_addresses: [{
+        label: String, // e.g., "Home", "Work"
+        address_line: String,
+        city: { type: String, required: true },
+        pincode: String,
+        is_default: { type: Boolean, default: false }
+    }],
     created_at: { type: Date, default: Date.now },
 }, {
     toJSON: {

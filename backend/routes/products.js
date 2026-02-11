@@ -3,10 +3,21 @@ const Product = require('../models/Product');
 const auth = require('../middleware/auth');
 const router = express.Router();
 
-// Get all products
+// Get all products with optional filters
 router.get('/', async (req, res) => {
     try {
-        const products = await Product.find({ is_active: true });
+        const { search, category } = req.query;
+        let filter = { is_active: true };
+
+        if (search) {
+            filter.name = { $regex: search, $options: 'i' };
+        }
+
+        if (category && category !== 'All') {
+            filter.category = category;
+        }
+
+        const products = await Product.find(filter);
         res.json(products);
     } catch (err) {
         res.status(500).json({ message: err.message });

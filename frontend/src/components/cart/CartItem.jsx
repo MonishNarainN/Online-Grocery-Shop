@@ -19,6 +19,10 @@ export function CartItem({ item }) {
             src={product.image_url}
             alt={product.name}
             className="h-full w-full object-cover"
+            onError={(e) => {
+              e.target.style.display = 'none';
+              e.target.parentElement.innerHTML = '<div class="h-full w-full flex items-center justify-center text-2xl">🛒</div>';
+            }}
           />
         ) : (
           <div className="h-full w-full flex items-center justify-center text-2xl">
@@ -30,7 +34,7 @@ export function CartItem({ item }) {
       {/* Details */}
       <div className="flex-1 min-w-0">
         <h3 className="font-semibold text-foreground truncate">{product.name}</h3>
-        <p className="text-sm text-muted-foreground">${product.price.toFixed(2)} each</p>
+        <p className="text-sm text-muted-foreground">₹{product.price.toFixed(2)} each</p>
       </div>
 
       {/* Quantity Controls */}
@@ -39,7 +43,7 @@ export function CartItem({ item }) {
           variant="outline"
           size="icon"
           className="h-8 w-8"
-          onClick={() => updateQuantity(item.id, item.quantity - 1)}
+          onClick={() => updateQuantity(item.product_id, item.quantity - 1)}
         >
           <Minus className="h-3 w-3" />
         </Button>
@@ -48,7 +52,7 @@ export function CartItem({ item }) {
           variant="outline"
           size="icon"
           className="h-8 w-8"
-          onClick={() => updateQuantity(item.id, item.quantity + 1)}
+          onClick={() => updateQuantity(item.product_id, item.quantity + 1)}
           disabled={item.quantity >= product.stock}
         >
           <Plus className="h-3 w-3" />
@@ -57,7 +61,7 @@ export function CartItem({ item }) {
 
       {/* Subtotal */}
       <div className="text-right w-24">
-        <p className="font-semibold price-tag">${subtotal.toFixed(2)}</p>
+        <p className="font-semibold price-tag">₹{subtotal.toFixed(2)}</p>
       </div>
 
       {/* Remove */}
@@ -65,7 +69,7 @@ export function CartItem({ item }) {
         variant="ghost"
         size="icon"
         className="text-destructive hover:text-destructive"
-        onClick={() => removeFromCart(item.id)}
+        onClick={() => removeFromCart(item.product_id)}
       >
         <Trash2 className="h-4 w-4" />
       </Button>

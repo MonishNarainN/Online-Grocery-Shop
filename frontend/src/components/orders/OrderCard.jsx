@@ -56,6 +56,10 @@ export function OrderCard({ order }) {
                   src={item.image_url}
                   alt={item.name}
                   className="h-full w-full object-cover"
+                  onError={(e) => {
+                    e.target.style.display = 'none';
+                    e.target.parentElement.innerHTML = '<div class="h-full w-full flex items-center justify-center text-lg">🛒</div>';
+                  }}
                 />
               ) : (
                 <div className="h-full w-full flex items-center justify-center text-lg">
@@ -77,7 +81,7 @@ export function OrderCard({ order }) {
             {order.items.length} item{order.items.length !== 1 ? 's' : ''}
           </p>
           <p className="font-semibold price-tag text-lg">
-            ${order.total_amount.toFixed(2)}
+            ₹{order.total_amount.toFixed(2)}
           </p>
         </div>
       </CardContent>

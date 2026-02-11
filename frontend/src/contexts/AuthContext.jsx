@@ -70,8 +70,32 @@ export function AuthProvider({ children }) {
     setIsAdmin(false);
   };
 
+  const addAddress = async (addressData) => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`${API_URL}/auth/add-address`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-auth-token': token
+        },
+        body: JSON.stringify(addressData),
+      });
+      const data = await response.json();
+
+      if (!response.ok) throw new Error(data.message || 'Failed to add address');
+
+      // Update local state
+      localStorage.setItem('user', JSON.stringify(data));
+      setUser(data);
+      return { error: null };
+    } catch (error) {
+      return { error };
+    }
+  };
+
   return (
-    <AuthContext.Provider value={{ user, isLoading, isAdmin, signUp, signIn, signOut }}>
+    <AuthContext.Provider value={{ user, isLoading, isAdmin, signUp, signIn, signOut, addAddress }}>
       {children}
     </AuthContext.Provider>
   );

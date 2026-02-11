@@ -27,25 +27,51 @@ export default function Index() {
 
   return (
     <Layout>
+      {/* Location Banner */}
+      <div className="bg-primary/10 py-2 border-b border-primary/10">
+        <div className="container flex items-center justify-center gap-2 text-sm font-medium text-primary">
+          <Truck className="w-4 h-4" />
+          <span>Currently Serviceable only in <span className="font-bold underline">Tiruvannamalai</span></span>
+        </div>
+      </div>
+
       {/* Hero Section */}
-      <section className="py-20 relative overflow-hidden">
+      <section className="py-12 relative overflow-hidden">
         <div className="container relative z-10">
-          <div className="max-w-4xl mx-auto p-8 md:p-12 rounded-3xl bg-card/30 border border-white/5 backdrop-blur-xl shadow-2xl animate-fade-in">
+          <div className="max-w-4xl mx-auto p-8 md:p-12 rounded-3xl bg-card/30 border border-white/5 backdrop-blur-xl shadow-2xl animate-fade-in text-center">
             <h1 className="font-display text-4xl md:text-6xl font-bold mb-6">
-              Fresh Groceries,<br /><span className="text-primary">Delivered Fresh</span>
+              Groceries.<br />
             </h1>
-            <p className="text-lg md:text-xl mb-8 max-w-2xl mx-auto text-foreground/90 font-medium">
-              Shop from your local grocery store online. Quality products, fair prices,
-              and convenient delivery to your doorstep.
-            </p>
+
+            {/* Search Bar */}
+            <div className="max-w-xl mx-auto mb-8 relative">
+              <form action="/products" className="relative flex items-center">
+                <input
+                  type="text"
+                  name="search"
+                  placeholder="Search for 'milk', 'chips'..."
+                  className="w-full pl-4 pr-12 py-3 rounded-xl border border-border bg-background/50 focus:bg-background transition-all outline-none ring-2 ring-transparent focus:ring-primary/20"
+                />
+                <button type="submit" className="absolute right-2 p-2 bg-primary rounded-lg text-primary-foreground hover:bg-primary/90 transition-colors">
+                  <ArrowRight className="w-5 h-5" />
+                </button>
+              </form>
+            </div>
+
+            {/* Quick Categories */}
+            <div className="flex flex-wrap justify-center gap-3 mb-8">
+              {['Vegetables', 'Fruits', 'Dairy', 'Snacks', 'Beverages'].map(cat => (
+                <Link key={cat} to={`/products?category=${cat}`} className="px-4 py-2 rounded-full bg-secondary/50 hover:bg-secondary transition-colors text-sm font-medium">
+                  {cat}
+                </Link>
+              ))}
+            </div>
+
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button size="lg" className="btn-primary-hover min-w-[160px]" asChild>
                 <Link to="/products">
-                  Shop Now <ArrowRight className="ml-2 h-5 w-5" />
+                  Shop All Products <ArrowRight className="ml-2 h-5 w-5" />
                 </Link>
-              </Button>
-              <Button size="lg" variant="outline" className="min-w-[160px]" asChild>
-                <Link to="/auth">Create Account</Link>
               </Button>
             </div>
           </div>

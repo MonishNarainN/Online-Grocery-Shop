@@ -1,20 +1,28 @@
 import { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { Search } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Layout } from '@/components/layout/Layout';
 import { ProductGrid } from '@/components/products/ProductGrid';
 import { CategoryFilter } from '@/components/products/CategoryFilter';
+
 export default function Products() {
   const [products, setProducts] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [search, setSearch] = useState('');
-  const [category, setCategory] = useState(null);
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const search = searchParams.get('search') || '';
+  const category = searchParams.get('category') || 'All';
 
   useEffect(() => {
     const fetchProducts = async () => {
       setIsLoading(true);
       try {
-        const response = await fetch('http://localhost:5000/api/products');
+        const params = new URLSearchParams();
+        if (search) params.append('search', search);
+        if (category && category !== 'All') params.append('category', category);
+
+        const response = await fetch(`http://localhost:5000/api/products?${params.toString()}`);
         const data = await response.json();
         setProducts(data || []);
       } catch (error) {
@@ -24,14 +32,19 @@ export default function Products() {
       }
     };
     fetchProducts();
-  }, []);
+  }, [search, category]);
 
-  const filteredProducts = products.filter(p => {
-    const matchesSearch = p.name.toLowerCase().includes(search.toLowerCase()) ||
-      p.description?.toLowerCase().includes(search.toLowerCase());
-    const matchesCategory = category ? p.category === category : true;
-    return matchesSearch && matchesCategory;
-  });
+  const updateSearch = (value) => {
+    if (value) searchParams.set('search', value);
+    else searchParams.delete('search');
+    setSearchParams(searchParams);
+  };
+
+  const updateCategory = (val) => {
+    if (val && val !== 'All') searchParams.set('category', val);
+    else searchParams.delete('category');
+    setSearchParams(searchParams);
+  };
 
   return (
     <Layout>
@@ -43,16 +56,21 @@ export default function Products() {
             <div className="flex flex-col md:flex-row gap-4 mb-8">
               <div className="relative flex-1">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input placeholder="Search products..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-10 bg-background/50 border-white/10" />
+                <Input
+                  placeholder="Search products..."
+                  value={search}
+                  onChange={(e) => updateSearch(e.target.value)}
+                  className="pl-10 bg-background/50 border-white/10"
+                />
               </div>
             </div>
 
             <div className="">
-              <CategoryFilter selectedCategory={category} onCategoryChange={setCategory} />
+              <CategoryFilter selectedCategory={category} onCategoryChange={updateCategory} />
             </div>
           </div>
 
-          <ProductGrid products={filteredProducts} isLoading={isLoading} />
+          <ProductGrid products={products} isLoading={isLoading} />
         </div>
       </div>
     </Layout>

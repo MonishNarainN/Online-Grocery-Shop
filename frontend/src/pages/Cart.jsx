@@ -48,12 +48,12 @@ export default function Cart() {
           <div className="p-6 rounded-2xl bg-card/30 border border-white/5 backdrop-blur-xl shadow-xl h-fit sticky top-24">
             <h2 className="font-semibold text-lg mb-4">Order Summary</h2>
             <div className="space-y-2 mb-4">
-              <div className="flex justify-between"><span>Subtotal</span><span>${totalPrice.toFixed(2)}</span></div>
-              <div className="flex justify-between"><span>Delivery</span><span>$2.99</span></div>
+              <div className="flex justify-between"><span>Subtotal</span><span>₹{totalPrice.toFixed(2)}</span></div>
+              <div className="flex justify-between"><span>Delivery</span><span>₹29.00</span></div>
             </div>
             <div className="border-t border-white/10 pt-4 mb-6">
               <div className="flex justify-between font-semibold text-lg">
-                <span>Total</span><span className="price-tag">${(totalPrice + 2.99).toFixed(2)}</span>
+                <span>Total</span><span className="price-tag">₹{(totalPrice + 29).toFixed(2)}</span>
               </div>
             </div>
             <Button className="w-full btn-primary-hover" size="lg" asChild><Link to="/checkout">Proceed to Checkout</Link></Button>
