@@ -32,6 +32,10 @@ export function AuthProvider({ children }) {
 
       if (!response.ok) throw new Error(data.message || 'Signup failed');
 
+      if (data.requireVerification) {
+        return { requireVerification: true, email: data.email };
+      }
+
       localStorage.setItem('token', data.token);
       localStorage.setItem('user', JSON.stringify(data.user));
       setUser(data.user);
@@ -51,7 +55,33 @@ export function AuthProvider({ children }) {
       });
       const data = await response.json();
 
-      if (!response.ok) throw new Error(data.message || 'Login failed');
+      if (!response.ok) {
+        if (response.status === 403 && data.requireVerification) {
+          return { requireVerification: true, email: data.email };
+        }
+        throw new Error(data.message || 'Login failed');
+      }
+
+      localStorage.setItem('token', data.token);
+      localStorage.setItem('user', JSON.stringify(data.user));
+      setUser(data.user);
+      setIsAdmin(data.user.role === 'admin');
+      return { error: null };
+    } catch (error) {
+      return { error };
+    }
+  };
+
+  const verifyEmail = async (email, code) => {
+    try {
+      const response = await fetch(`${API_URL}/auth/verify-email`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, code }),
+      });
+      const data = await response.json();
+
+      if (!response.ok) throw new Error(data.message || 'Verification failed');
 
       localStorage.setItem('token', data.token);
       localStorage.setItem('user', JSON.stringify(data.user));
@@ -95,7 +125,7 @@ export function AuthProvider({ children }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, isLoading, isAdmin, signUp, signIn, signOut, addAddress }}>
+    <AuthContext.Provider value={{ user, isLoading, isAdmin, signUp, signIn, signOut, addAddress, verifyEmail }}>
       {children}
     </AuthContext.Provider>
   );

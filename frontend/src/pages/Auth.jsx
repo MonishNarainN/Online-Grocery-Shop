@@ -22,7 +22,12 @@ export default function Auth() {
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const { user, isAdmin, isLoading: authLoading, signIn, signUp } = useAuth();
+
+  // Verification State
+  const [verificationStep, setVerificationStep] = useState(false);
+  const [code, setCode] = useState('');
+
+  const { user, isAdmin, isLoading: authLoading, signIn, signUp, verifyEmail } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -56,12 +61,15 @@ export default function Auth() {
       const validationData = isSignUp ? { email, password, name } : { email, password };
       authSchema.parse(validationData);
 
-      const { error } = isSignUp
+      const result = isSignUp
         ? await signUp(email, password, name)
         : await signIn(email, password);
 
-      if (error) {
-        toast.error(error.message);
+      if (result.error) {
+        toast.error(result.error.message);
+      } else if (result.requireVerification) {
+        setVerificationStep(true);
+        toast.info('Please check your email for the verification code.');
       } else {
         toast.success(isSignUp ? 'Account created!' : 'Welcome back!');
         // Redirect handled by useEffect
@@ -74,6 +82,61 @@ export default function Auth() {
       setIsLoading(false);
     }
   };
+
+  const handleVerify = async (e) => {
+    e.preventDefault();
+    setIsLoading(true);
+
+    const { error } = await verifyEmail(email, code);
+
+    if (error) {
+      toast.error(error.message);
+      setIsLoading(false);
+    } else {
+      toast.success('Email verified successfully!');
+      // Redirect handled by useEffect
+    }
+  };
+
+  if (verificationStep) {
+    return (
+      <Layout>
+        <div className="container flex items-center justify-center py-16 min-h-[80vh] relative z-10">
+          <div className="w-full max-w-md p-1 rounded-2xl bg-card/30 border border-white/5 backdrop-blur-xl shadow-2xl">
+            <Card className="w-full border-0 bg-transparent shadow-none">
+              <CardHeader className="text-center">
+                <CardTitle className="font-display text-2xl">Verify Email</CardTitle>
+                <CardDescription>Enter the code sent to {email}</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <form onSubmit={handleVerify} className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="code">Verification Code</Label>
+                    <Input
+                      id="code"
+                      value={code}
+                      onChange={(e) => setCode(e.target.value)}
+                      placeholder="123456"
+                      className="text-center text-2xl tracking-widest"
+                      maxLength={6}
+                    />
+                  </div>
+                  <Button type="submit" className="w-full" disabled={isLoading}>
+                    {isLoading ? 'Verifying...' : 'Verify Email'}
+                  </Button>
+                  <div className="mt-4 text-center text-sm">
+                    <button type="button" className="text-primary hover:underline" onClick={() => setVerificationStep(false)}>
+                      Back
+                    </button>
+                  </div>
+                </form>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </Layout>
+    );
+  }
 
   return (
     <Layout>

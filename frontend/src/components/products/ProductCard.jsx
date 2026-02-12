@@ -33,7 +33,7 @@ export function ProductCard({ product }) {
   const categoryLabel = CATEGORY_LABELS[product.category] || product.category;
 
   return (
-    <Card className="product-card group overflow-hidden">
+    <Card className="product-card group overflow-hidden fade-in border-none bg-card/50 backdrop-blur-sm">
       {/* Image */}
       <div className="aspect-square overflow-hidden bg-secondary">
         {product.image_url ? (
@@ -112,7 +112,7 @@ export function ProductCard({ product }) {
               </div>
             ) : (
               <Button
-                className="w-full"
+                className="w-full add-btn"
                 onClick={handleAddToCart}
               >
                 <ShoppingCart className="mr-2 h-4 w-4" />

@@ -204,7 +204,14 @@ export default function Checkout() {
                   <span className="text-2xl font-bold price-tag">₹{(totalPrice + 29).toFixed(2)}</span>
                 </div>
                 <Button className="w-full h-12 text-lg font-bold shadow-lg shadow-primary/20" onClick={handlePlaceOrder} disabled={isProcessing}>
-                  {isProcessing ? 'Processing Order...' : 'Submit Payment'}
+                  {isProcessing ? (
+                    <div className="flex items-center gap-2 justify-center">
+                      <div className="loader !w-5 !h-5 !border-2 !border-white/20 !border-t-white" />
+                      <span>Processing Order...</span>
+                    </div>
+                  ) : (
+                    'Submit Payment'
+                  )}
                 </Button>
               </div>
             </div>

@@ -13,6 +13,8 @@ const userSchema = new mongoose.Schema({
         pincode: String,
         is_default: { type: Boolean, default: false }
     }],
+    verificationCode: { type: String },
+    isVerified: { type: Boolean, default: false },
     created_at: { type: Date, default: Date.now },
 }, {
     toJSON: {
@@ -20,6 +22,8 @@ const userSchema = new mongoose.Schema({
             ret.id = ret._id;
             delete ret._id;
             delete ret.__v;
+            delete ret.password;
+            delete ret.verificationCode; // Don't expose code
             return ret;
         }
     }
