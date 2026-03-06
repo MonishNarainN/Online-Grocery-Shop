@@ -70,10 +70,19 @@ app.listen(PORT, () => {
 
     // --- Spawn Python Chatbot ---
     console.log('🐍 Starting Python Chatbot process...');
-    const pythonCmd = process.platform === 'win32' ? 'python' : 'python3';
-    const chatbotPath = path.join(__dirname, 'chatbot', 'chatbot_api.py');
 
-    const chatbot = spawn(pythonCmd, [chatbotPath], {
+    // Use the virtual environment python in production (Docker)
+    const venvPython = path.join(__dirname, 'venv', 'bin', 'python3');
+    const pythonCmd = fs.existsSync(venvPython) ? venvPython : (process.platform === 'win32' ? 'python' : 'python3');
+
+    const chatbotDir = path.join(__dirname, 'chatbot');
+    const chatbotScript = 'chatbot_api.py';
+
+    console.log(`[System]: Using Python: ${pythonCmd}`);
+    console.log(`[System]: Chatbot Dir: ${chatbotDir}`);
+
+    const chatbot = spawn(pythonCmd, [chatbotScript], {
+        cwd: chatbotDir,
         env: { ...process.env, PORT: '5001' }
     });
 
