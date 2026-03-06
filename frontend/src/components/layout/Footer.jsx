@@ -1,6 +1,8 @@
 import { Link } from 'react-router-dom';
+import { useAuth } from '@/contexts/AuthContext';
 
 export function Footer() {
+  const { isAdmin } = useAuth();
   return (
     <footer className="border-t bg-transparent">
       <div className="container py-12">
@@ -43,11 +45,13 @@ export function Footer() {
                   My Orders
                 </Link>
               </li>
-              <li>
-                <Link to="/admin" className="text-primary font-bold hover:underline">
-                  Admin Panel
-                </Link>
-              </li>
+              {isAdmin && (
+                <li>
+                  <Link to="/admin" className="text-primary font-bold hover:underline">
+                    Admin Panel
+                  </Link>
+                </li>
+              )}
             </ul>
           </div>
 
@@ -55,10 +59,9 @@ export function Footer() {
           <div className="p-6 rounded-2xl bg-card/40 border border-white/5 backdrop-blur-md transition-all duration-300 hover:bg-card/60">
             <h3 className="font-semibold mb-4 text-foreground">Contact</h3>
             <ul className="space-y-2 text-muted-foreground">
-              <li>📍 123 Market Street</li>
-              <li>📞 (555) 123-4567</li>
-              <li>✉️ hello@freshmart.com</li>
-              <li>🕐 Mon-Sat: 8AM - 9PM</li>
+              <li>📍 Thiruvallura street Tiruvannamalai</li>
+              <li>📞 866067685</li>
+              <li>✉️ rajarajeshwari@gmail.com</li>
             </ul>
           </div>
         </div>

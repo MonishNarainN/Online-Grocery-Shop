@@ -7,12 +7,14 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { AnimatePresence, motion } from "framer-motion";
 import { WaveBackground } from "./components/backgrounds/WaveBackground";
 import { CartProvider } from "@/contexts/CartContext";
+import { Chatbot } from "./components/chat/Chatbot";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import Products from "./pages/Products";
 import Cart from "./pages/Cart";
 import Checkout from "./pages/Checkout";
 import Orders from "./pages/Orders";
+import Wishlist from "./pages/Wishlist";
 import Admin from "./pages/Admin";
 import NotFound from "./pages/NotFound";
 
@@ -28,6 +30,7 @@ const App = () => (
         <AuthProvider>
           <CartProvider>
             <AnimatedRoutes />
+            <Chatbot />
           </CartProvider>
         </AuthProvider>
       </BrowserRouter>
@@ -47,6 +50,7 @@ const AnimatedRoutes = () => {
         <Route path="/cart" element={<PageWrapper><Cart /></PageWrapper>} />
         <Route path="/checkout" element={<PageWrapper><Checkout /></PageWrapper>} />
         <Route path="/orders" element={<PageWrapper><Orders /></PageWrapper>} />
+        <Route path="/wishlist" element={<PageWrapper><Wishlist /></PageWrapper>} />
         <Route path="/admin" element={<PageWrapper><Admin /></PageWrapper>} />
         <Route path="*" element={<PageWrapper><NotFound /></PageWrapper>} />
       </Routes>

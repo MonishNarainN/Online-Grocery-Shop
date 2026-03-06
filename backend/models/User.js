@@ -15,6 +15,7 @@ const userSchema = new mongoose.Schema({
     }],
     verificationCode: { type: String },
     isVerified: { type: Boolean, default: false },
+    wishlist: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Product' }],
     created_at: { type: Date, default: Date.now },
 }, {
     toJSON: {

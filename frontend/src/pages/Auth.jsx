@@ -27,7 +27,12 @@ export default function Auth() {
   const [verificationStep, setVerificationStep] = useState(false);
   const [code, setCode] = useState('');
 
-  const { user, isAdmin, isLoading: authLoading, signIn, signUp, verifyEmail } = useAuth();
+  // Password Reset State
+  const [forgotPasswordStep, setForgotPasswordStep] = useState(false);
+  const [resetPasswordStep, setResetPasswordStep] = useState(false);
+  const [newPassword, setNewPassword] = useState('');
+
+  const { user, isAdmin, isLoading: authLoading, signIn, signUp, verifyEmail, forgotPassword, resetPassword } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -98,6 +103,39 @@ export default function Auth() {
     }
   };
 
+  const handleForgotPassword = async (e) => {
+    e.preventDefault();
+    setIsLoading(true);
+
+    const { error, message } = await forgotPassword(email);
+
+    if (error) {
+      toast.error(error.message);
+    } else {
+      toast.success(message);
+      setForgotPasswordStep(false);
+      setResetPasswordStep(true);
+    }
+    setIsLoading(false);
+  };
+
+  const handleResetPassword = async (e) => {
+    e.preventDefault();
+    setIsLoading(true);
+
+    const { error, message } = await resetPassword(email, code, newPassword);
+
+    if (error) {
+      toast.error(error.message);
+    } else {
+      toast.success(message);
+      setResetPasswordStep(false);
+      setCode('');
+      setNewPassword('');
+    }
+    setIsLoading(false);
+  };
+
   if (verificationStep) {
     return (
       <Layout>
@@ -138,6 +176,80 @@ export default function Auth() {
     );
   }
 
+  if (forgotPasswordStep) {
+    return (
+      <Layout>
+        <div className="container flex items-center justify-center py-16 min-h-[80vh] relative z-10">
+          <div className="w-full max-w-md p-1 rounded-2xl bg-card/30 border border-white/5 backdrop-blur-xl shadow-2xl">
+            <Card className="w-full border-0 bg-transparent shadow-none">
+              <CardHeader className="text-center">
+                <CardTitle className="font-display text-2xl">Forgot Password</CardTitle>
+                <CardDescription>Enter your email to receive a reset code</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <form onSubmit={handleForgotPassword} className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="reset-email">Email</Label>
+                    <Input id="reset-email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" required />
+                  </div>
+                  <Button type="submit" className="w-full" disabled={isLoading}>
+                    {isLoading ? 'Sending...' : 'Send Reset Code'}
+                  </Button>
+                  <div className="mt-4 text-center text-sm">
+                    <button type="button" className="text-primary hover:underline" onClick={() => setForgotPasswordStep(false)}>
+                      Back to sign in
+                    </button>
+                  </div>
+                </form>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </Layout>
+    );
+  }
+
+  if (resetPasswordStep) {
+    return (
+      <Layout>
+        <div className="container flex items-center justify-center py-16 min-h-[80vh] relative z-10">
+          <div className="w-full max-w-md p-1 rounded-2xl bg-card/30 border border-white/5 backdrop-blur-xl shadow-2xl">
+            <Card className="w-full border-0 bg-transparent shadow-none">
+              <CardHeader className="text-center">
+                <CardTitle className="font-display text-2xl">Reset Password</CardTitle>
+                <CardDescription>Enter the code sent to {email}</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <form onSubmit={handleResetPassword} className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="reset-code">Verification Code</Label>
+                    <Input id="reset-code" value={code} onChange={(e) => setCode(e.target.value)} placeholder="123456" className="text-center text-2xl tracking-widest" maxLength={6} required />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="new-password">New Password</Label>
+                    <Input id="new-password" type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} placeholder="••••••••" required minLength={6} />
+                  </div>
+                  <Button type="submit" className="w-full" disabled={isLoading}>
+                    {isLoading ? 'Resetting...' : 'Reset Password'}
+                  </Button>
+                  <div className="mt-4 text-center text-sm">
+                    <button type="button" className="text-primary hover:underline" onClick={() => { setResetPasswordStep(false); setForgotPasswordStep(true); }}>
+                      Resend Code
+                    </button>
+                    {' | '}
+                    <button type="button" className="text-primary hover:underline" onClick={() => setResetPasswordStep(false)}>
+                      Cancel
+                    </button>
+                  </div>
+                </form>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </Layout>
+    );
+  }
+
   return (
     <Layout>
       <div className="container flex items-center justify-center py-16 min-h-[80vh] relative z-10">
@@ -164,7 +276,14 @@ export default function Auth() {
                   <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="password">Password</Label>
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="password">Password</Label>
+                    {!isSignUp && (
+                      <button type="button" className="text-xs text-primary hover:underline" onClick={() => setForgotPasswordStep(true)}>
+                        Forgot Password?
+                      </button>
+                    )}
+                  </div>
                   <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" />
                 </div>
                 <Button type="submit" className="w-full" disabled={isLoading}>

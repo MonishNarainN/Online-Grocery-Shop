@@ -71,8 +71,11 @@ export function CartProvider({ children }) {
 
   const itemCount = items.reduce((sum, item) => sum + item.quantity, 0);
   const totalPrice = items.reduce((sum, item) => {
-    const price = item.product?.price || 0;
-    return sum + price * item.quantity;
+    const product = item.product;
+    const meetsBulkRequirement = product.discountMinQuantity ? item.quantity >= product.discountMinQuantity : true;
+    const activePrice = meetsBulkRequirement && product.discountedPrice ? product.discountedPrice : product.price;
+
+    return sum + activePrice * item.quantity;
   }, 0);
 
   return (

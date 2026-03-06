@@ -1,5 +1,5 @@
 import { Link, useNavigate } from 'react-router-dom';
-import { ShoppingCart, User, LogOut, Settings, Package, Menu } from 'lucide-react';
+import { ShoppingCart, User, LogOut, Settings, Package, Menu, Heart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -19,7 +19,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useCart } from '@/contexts/CartContext';
 
 export function Header() {
-  const { user, isAdmin, signOut } = useAuth();
+  const { user, isAdmin, signOut, wishlist } = useAuth();
   const { itemCount } = useCart();
   const navigate = useNavigate();
 
@@ -33,8 +33,8 @@ export function Header() {
       <div className="container flex h-16 items-center justify-between">
         {/* Logo */}
         <Link to="/" className="flex items-center gap-2">
-          <img src="/logo.png" alt="Sri Rajarajeswari Trade Logo" className="h-10 w-10 object-contain rounded-lg" />
-          <span className="font-display text-xl font-bold text-primary">
+          <img src="/logo.png" alt="Sri Rajarajeswari Trade Logo" className="h-8 w-8 md:h-10 md:w-10 object-contain rounded-lg" />
+          <span className="font-display text-base sm:text-lg md:text-xl font-bold text-primary truncate max-w-[150px] sm:max-w-[250px] md:max-w-none">
             Sri Rajarajeswari Trade
           </span>
         </Link>
@@ -71,6 +71,7 @@ export function Header() {
                 <Link to="/products" className="text-lg font-medium hover:text-primary transition-colors">Products</Link>
                 <Link to="/cart" className="text-lg font-medium hover:text-primary transition-colors">Cart</Link>
                 <Link to="/orders" className="text-lg font-medium hover:text-primary transition-colors">My Orders</Link>
+                <Link to="/wishlist" className="text-lg font-medium hover:text-primary transition-colors">Wishlist</Link>
                 {(isAdmin || user?.email?.toLowerCase().trim() === 'rajarajeshwari@gmail.com') && (
                   <Link to="/admin" className="text-xl font-bold text-primary border-t pt-4 mt-4 animate-pulse">
                     ADMIN DASHBOARD
@@ -84,16 +85,29 @@ export function Header() {
         {/* Actions */}
         <div className="flex items-center gap-3">
           {user && (
-            <Link to="/cart" className="relative">
-              <Button variant="ghost" size="icon" className="relative">
-                <ShoppingCart className="h-5 w-5" />
-                {itemCount > 0 && (
-                  <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground animate-cart-bounce">
-                    {itemCount}
-                  </span>
-                )}
-              </Button>
-            </Link>
+            <>
+              <Link to="/wishlist" className="relative hidden md:flex">
+                <Button variant="ghost" size="icon" className="relative text-red-500 hover:text-red-600 hover:bg-red-50">
+                  <Heart className="h-5 w-5 fill-current" />
+                  {wishlist?.length > 0 && (
+                    <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white shadow-sm">
+                      {wishlist.length}
+                    </span>
+                  )}
+                </Button>
+              </Link>
+
+              <Link to="/cart" className="relative">
+                <Button variant="ghost" size="icon" className="relative">
+                  <ShoppingCart className="h-5 w-5" />
+                  {itemCount > 0 && (
+                    <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground animate-cart-bounce">
+                      {itemCount}
+                    </span>
+                  )}
+                </Button>
+              </Link>
+            </>
           )}
 
           {user ? (
@@ -108,6 +122,12 @@ export function Header() {
                   {user.email}
                 </div>
                 <DropdownMenuSeparator />
+                <DropdownMenuItem asChild>
+                  <Link to="/wishlist" className="flex items-center md:hidden">
+                    <Heart className="mr-2 h-4 w-4 text-red-500" />
+                    Wishlist
+                  </Link>
+                </DropdownMenuItem>
                 <DropdownMenuItem asChild>
                   <Link to="/orders" className="flex items-center">
                     <Package className="mr-2 h-4 w-4" />

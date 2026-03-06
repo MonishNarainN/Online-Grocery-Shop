@@ -2,8 +2,12 @@ node_modules/
 .vite/
 frontend/.vite/
 .env
+frontend/.env
+backend/.env
 dist
 build
+venv/
+mobile/
 
 # Logs
 *.log

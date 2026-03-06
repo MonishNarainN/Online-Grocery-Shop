@@ -8,7 +8,11 @@ export function CartItem({ item }) {
 
   if (!product) return null;
 
-  const subtotal = product.price * item.quantity;
+  const meetsBulkRequirement = product.discountMinQuantity ? item.quantity >= product.discountMinQuantity : true;
+  const displayPrice = meetsBulkRequirement && product.discountedPrice ? product.discountedPrice : product.price;
+  const isBulkPromoAvailable = product.discountMinQuantity > 1;
+
+  const subtotal = displayPrice * item.quantity;
 
   return (
     <div className="flex items-center gap-4 p-4 bg-card rounded-xl border">
@@ -34,7 +38,20 @@ export function CartItem({ item }) {
       {/* Details */}
       <div className="flex-1 min-w-0">
         <h3 className="font-semibold text-foreground truncate">{product.name}</h3>
-        <p className="text-sm text-muted-foreground">₹{product.price.toFixed(2)} each</p>
+        <p className="text-sm text-muted-foreground mb-1">₹{displayPrice.toFixed(2)} / {product.unit || 'unit'}</p>
+
+        {/* Conditional Bulk Feedback */}
+        {isBulkPromoAvailable && (
+          meetsBulkRequirement ? (
+            <span className="text-[10px] bg-green-500/10 text-green-500 px-2 py-0.5 rounded border border-green-500/20 font-medium">
+              Bulk Discount Applied!
+            </span>
+          ) : (
+            <span className="text-[10px] text-muted-foreground px-2 py-0.5 rounded border bg-muted/50">
+              Add {product.discountMinQuantity - item.quantity} more for {product.discountPercent}% OFF
+            </span>
+          )
+        )}
       </div>
 
       {/* Quantity Controls */}

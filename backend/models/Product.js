@@ -9,6 +9,8 @@ const productSchema = new mongoose.Schema({
     unit: { type: String, default: 'stock' }, // 'stock' (count) or 'kg'
     image_url: { type: String },
     is_active: { type: Boolean, default: true },
+    averageRating: { type: Number, default: 0 },
+    numReviews: { type: Number, default: 0 },
     created_at: { type: Date, default: Date.now },
 }, {
     toJSON: {

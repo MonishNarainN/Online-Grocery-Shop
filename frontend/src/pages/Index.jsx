@@ -5,17 +5,28 @@ import { Button } from '@/components/ui/button';
 import { Layout } from '@/components/layout/Layout';
 import { ProductGrid } from '@/components/products/ProductGrid';
 import { useAuth } from '@/contexts/AuthContext';
+import { PRODUCT_CATEGORIES, CATEGORY_LABELS } from '@/lib/types';
+import { API_URL } from '@/config';
+
 export default function Index() {
-  const [featuredProducts, setFeaturedProducts] = useState([]);
+  const [bestSellers, setBestSellers] = useState([]);
+  const [specialOffers, setSpecialOffers] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const { user, isAdmin } = useAuth();
 
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const response = await fetch('http://localhost:5000/api/products');
+        const response = await fetch(`${API_URL}/products`);
         const data = await response.json();
-        setFeaturedProducts((data || []).slice(0, 8));
+
+        // Sorting for Best Sellers (simulate by numReviews / rating, or just take top)
+        const sortedByPopularity = [...(data || [])].sort((a, b) => (b.numReviews || 0) - (a.numReviews || 0));
+        setBestSellers(sortedByPopularity.slice(0, 8));
+
+        // Filter for Special Offers
+        const offers = (data || []).filter(p => p.discountPercent && p.discountPercent > 0);
+        setSpecialOffers(offers.slice(0, 8));
       } catch (error) {
         console.error('Error fetching products:', error);
       } finally {
@@ -60,9 +71,9 @@ export default function Index() {
 
             {/* Quick Categories */}
             <div className="flex flex-wrap justify-center gap-3 mb-8">
-              {['Vegetables', 'Fruits', 'Dairy', 'Snacks', 'Beverages'].map(cat => (
+              {PRODUCT_CATEGORIES.slice(0, 8).map(cat => (
                 <Link key={cat} to={`/products?category=${cat}`} className="px-4 py-2 rounded-full bg-secondary/50 hover:bg-secondary transition-colors text-sm font-medium">
-                  {cat}
+                  {CATEGORY_LABELS[cat]}
                 </Link>
               ))}
             </div>
@@ -113,16 +124,31 @@ export default function Index() {
         </div>
       </section>
 
-      {/* Featured Products */}
+      {/* Special Offers (only show if there are offers) */}
+      {!isLoading && specialOffers.length > 0 && (
+        <section className="py-16 bg-primary/5">
+          <div className="container">
+            <div className="flex items-center justify-between mb-8">
+              <h2 className="font-display text-3xl font-bold text-primary">Special Offers</h2>
+              <Button variant="ghost" asChild>
+                <Link to="/products">See More <ArrowRight className="ml-2 h-4 w-4" /></Link>
+              </Button>
+            </div>
+            <ProductGrid products={specialOffers} isLoading={isLoading} />
+          </div>
+        </section>
+      )}
+
+      {/* Best Sellers */}
       <section className="py-16">
         <div className="container">
           <div className="flex items-center justify-between mb-8">
-            <h2 className="font-display text-3xl font-bold">Featured Products</h2>
+            <h2 className="font-display text-3xl font-bold">Best Sellers</h2>
             <Button variant="ghost" asChild>
-              <Link to="/products">View All <ArrowRight className="ml-2 h-4 w-4" /></Link>
+              <Link to="/products">Shop All <ArrowRight className="ml-2 h-4 w-4" /></Link>
             </Button>
           </div>
-          <ProductGrid products={featuredProducts} isLoading={isLoading} />
+          <ProductGrid products={bestSellers} isLoading={isLoading} />
         </div>
       </section>
     </Layout>

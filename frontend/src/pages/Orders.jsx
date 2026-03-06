@@ -5,6 +5,8 @@ import { Button } from '@/components/ui/button';
 import { Layout } from '@/components/layout/Layout';
 import { OrderCard } from '@/components/orders/OrderCard';
 import { useAuth } from '@/contexts/AuthContext';
+import { API_URL } from '@/config';
+
 export default function Orders() {
   const { user } = useAuth();
   const [orders, setOrders] = useState([]);
@@ -18,7 +20,7 @@ export default function Orders() {
     }
     const fetchOrders = async () => {
       try {
-        const response = await fetch('http://localhost:5000/api/orders/my-orders', {
+        const response = await fetch(`${API_URL}/orders/my-orders`, {
           headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
         });
         if (!response.ok) {

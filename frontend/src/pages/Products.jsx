@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Layout } from '@/components/layout/Layout';
 import { ProductGrid } from '@/components/products/ProductGrid';
 import { CategoryFilter } from '@/components/products/CategoryFilter';
+import { API_URL } from '@/config';
 
 export default function Products() {
   const [products, setProducts] = useState([]);
@@ -22,7 +23,7 @@ export default function Products() {
         if (search) params.append('search', search);
         if (category && category !== 'All') params.append('category', category);
 
-        const response = await fetch(`http://localhost:5000/api/products?${params.toString()}`);
+        const response = await fetch(`${API_URL}/products?${params.toString()}`);
         const data = await response.json();
         setProducts(data || []);
       } catch (error) {
