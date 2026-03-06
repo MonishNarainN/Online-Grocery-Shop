@@ -19,18 +19,12 @@ RUN npm install
 # Copy the rest of the backend files
 COPY . .
 
-# Install Python dependencies for the chatbot
-# Note: requirements.txt is now in chatbot/ folder
-RUN python3 -m venv /app/venv
-RUN /app/venv/bin/pip install --no-cache-dir -r chatbot/requirements.txt
+# Install Python dependencies globally
+# We use --break-system-packages because we are in an isolated container
+RUN pip3 install --no-cache-dir --break-system-packages -r chatbot/requirements.txt
 
-# Set environment variables for Python
-ENV PATH="/app/venv/bin:$PATH"
-
-# Expose the main port (Render uses PORT env var, usually 10000)
-# We don't expose 5001 because it's only used internally
+# Expose the main port
 EXPOSE 10000
 
 # Start the application
-# Node will spawn the Python process internally
 CMD ["node", "index.js"]
