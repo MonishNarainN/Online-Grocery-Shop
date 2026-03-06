@@ -21,7 +21,13 @@ app.use('/api/payment', require('./routes/payment'));
 app.use('/api/settings', require('./routes/settings'));
 
 app.get('/api/health', (req, res) => {
-    res.status(200).json({ status: 'ok', message: 'API is healthy' });
+    const dbStatus = mongoose.connection.readyState === 1 ? 'connected' : 'disconnected';
+    res.status(200).json({
+        status: 'ok',
+        message: 'API is running',
+        database: dbStatus,
+        env: process.env.NODE_ENV || 'development'
+    });
 });
 
 app.get('/', (req, res) => {
@@ -32,15 +38,19 @@ app.get('/', (req, res) => {
 app.listen(PORT, () => {
     console.log(`🚀 Server is running on port ${PORT}`);
 
-    // MongoDB Connection (after server start)
-    if (!process.env.MONGODB_URI) {
-        console.error('❌ ERROR: MONGODB_URI is not defined in environment variables!');
-        return;
-    }
+    // Environment Variable Checks
+    const requiredEnv = ['MONGODB_URI', 'JWT_SECRET'];
+    requiredEnv.forEach(env => {
+        if (!process.env[env]) {
+            console.error(`❌ ERROR: ${env} is not defined in environment variables!`);
+        }
+    });
 
-    mongoose.connect(process.env.MONGODB_URI)
-        .then(() => console.log('✅ Connected to MongoDB Atlas'))
-        .catch(err => console.error('❌ MongoDB connection error:', err.message));
+    if (process.env.MONGODB_URI) {
+        mongoose.connect(process.env.MONGODB_URI)
+            .then(() => console.log('✅ Connected to MongoDB Atlas'))
+            .catch(err => console.error('❌ MongoDB connection error:', err.message));
+    }
 });
 
 module.exports = app;
