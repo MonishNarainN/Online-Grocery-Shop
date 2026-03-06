@@ -2,6 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const path = require('path');
+const fs = require('fs');
 require('dotenv').config();
 const { spawn } = require('child_process');
 const { createProxyMiddleware } = require('http-proxy-middleware');
