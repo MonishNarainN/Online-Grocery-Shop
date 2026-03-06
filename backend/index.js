@@ -3,6 +3,8 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const path = require('path');
 require('dotenv').config();
+const { spawn } = require('child_process');
+const { createProxyMiddleware } = require('http-proxy-middleware');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -19,6 +21,18 @@ app.use('/api/orders', require('./routes/orders'));
 app.use('/api/promotions', require('./routes/promotions'));
 app.use('/api/payment', require('./routes/payment'));
 app.use('/api/settings', require('./routes/settings'));
+
+// Proxy for Chatbot (Python running internally on 5001)
+app.use('/api/chat', createProxyMiddleware({
+    target: 'http://127.0.0.1:5001',
+    changeOrigin: true,
+    pathRewrite: {
+        '^/api/chat': '/api/chat', // Keep the path as is
+    },
+    onError: (err, req, res) => {
+        res.status(502).json({ response: "Chatbot is still starting up... Please try again in a few seconds." });
+    }
+}));
 
 app.get('/api/health', (req, res) => {
     const state = mongoose.connection.readyState;
@@ -53,6 +67,27 @@ app.listen(PORT, () => {
             .then(() => console.log('✅ Connected to MongoDB Atlas'))
             .catch(err => console.error('❌ MongoDB connection error:', err.message));
     }
+
+    // --- Spawn Python Chatbot ---
+    console.log('🐍 Starting Python Chatbot process...');
+    const pythonCmd = process.platform === 'win32' ? 'python' : 'python3';
+    const chatbotPath = path.join(__dirname, 'chatbot', 'chatbot_api.py');
+
+    const chatbot = spawn(pythonCmd, [chatbotPath], {
+        env: { ...process.env, PORT: '5001' }
+    });
+
+    chatbot.stdout.on('data', (data) => {
+        console.log(`[Chatbot]: ${data}`);
+    });
+
+    chatbot.stderr.on('data', (data) => {
+        console.error(`[Chatbot Error]: ${data}`);
+    });
+
+    chatbot.on('close', (code) => {
+        console.log(`[Chatbot]: Process exited with code ${code}`);
+    });
 });
 
 module.exports = app;
