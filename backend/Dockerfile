@@ -21,7 +21,7 @@ COPY . .
 
 # Install Python dependencies globally
 # We use --break-system-packages because we are in an isolated container
-RUN pip3 install --no-cache-dir --break-system-packages -r chatbot/requirements.txt
+RUN pip3 install --no-cache-dir --break-system-packages -r requirements.txt
 
 # Expose the main port
 EXPOSE 10000
