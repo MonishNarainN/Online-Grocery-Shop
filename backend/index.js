@@ -21,11 +21,13 @@ app.use('/api/payment', require('./routes/payment'));
 app.use('/api/settings', require('./routes/settings'));
 
 app.get('/api/health', (req, res) => {
-    const dbStatus = mongoose.connection.readyState === 1 ? 'connected' : 'disconnected';
+    const state = mongoose.connection.readyState;
+    const states = { 0: 'disconnected', 1: 'connected', 2: 'connecting', 3: 'disconnecting' };
     res.status(200).json({
         status: 'ok',
-        message: 'API is running',
-        database: dbStatus,
+        database: states[state] || 'unknown',
+        readyState: state,
+        hasUri: !!process.env.MONGODB_URI,
         env: process.env.NODE_ENV || 'development'
     });
 });
