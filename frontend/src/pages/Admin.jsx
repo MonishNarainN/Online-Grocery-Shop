@@ -47,6 +47,7 @@ export default function Admin() {
   const [promotions, setPromotions] = useState([]);
 
   useEffect(() => {
+    console.log('💎 ADMIN PAGE MOUNTED. API_URL:', API_URL);
     fetchAllData();
   }, []);
 

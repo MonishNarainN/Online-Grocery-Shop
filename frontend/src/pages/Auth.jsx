@@ -8,6 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 import { Layout } from '@/components/layout/Layout';
+import { API_URL } from '@/config';
 
 const authSchema = z.object({
   email: z.string().email('Invalid email address'),
@@ -40,7 +41,8 @@ export default function Auth() {
       console.log('🔍 Auth page redirect check:', {
         email: user.email,
         isAdmin,
-        authLoading
+        authLoading,
+        API_URL: API_URL
       });
 
       // Use a small timeout to allow state to settle if needed, but primarily trust isAdmin
