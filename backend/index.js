@@ -65,7 +65,33 @@ app.listen(PORT, () => {
 
     if (process.env.MONGODB_URI) {
         mongoose.connect(process.env.MONGODB_URI)
-            .then(() => console.log('✅ Connected to MongoDB Atlas'))
+            .then(async () => {
+                console.log('✅ Connected to MongoDB Atlas');
+
+                // One-time Admin Seeder
+                try {
+                    const User = require('./models/User');
+                    const adminEmail = 'rajarajeshwari@gmail.com';
+                    const existingAdmin = await User.findOne({ email: adminEmail });
+
+                    if (!existingAdmin) {
+                        console.log('🚀 Creating default Admin account...');
+                        const newAdmin = new User({
+                            name: 'Main Admin',
+                            email: adminEmail,
+                            password: 'Admin@123',
+                            role: 'admin',
+                            isVerified: true
+                        });
+                        await newAdmin.save();
+                        console.log('✅ Admin account created successfully!');
+                    } else {
+                        console.log('ℹ️ Admin account already exists.');
+                    }
+                } catch (seederErr) {
+                    console.error('❌ Admin seeder error:', seederErr.message);
+                }
+            })
             .catch(err => console.error('❌ MongoDB connection error:', err.message));
     }
 
