@@ -8,7 +8,7 @@ const { spawn } = require('child_process');
 const { createProxyMiddleware } = require('http-proxy-middleware');
 
 const app = express();
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 10000; // Default to 10000 for Render
 
 // --- 1. Robust CORS Middleware ---
 app.use(cors({
@@ -54,13 +54,13 @@ app.use('/api/chat', (req, res, next) => {
     }
 }));
 
-// --- 3. Global Error Handler (Prevents "CORS Blocked" on 500 errors) ---
+// --- 3. Global Error Handler ---
 app.use((err, req, res, next) => {
-    console.error('[Global Error]:', err.stack);
-    res.header('Access-Control-Allow-Origin', req.headers.origin || '*'); // Ensure CORS on error
+    console.error(`[Global Error] ${req.method} ${req.url}:`, err.stack);
+    res.header('Access-Control-Allow-Origin', req.headers.origin || '*');
     res.status(500).json({
         message: 'Internal Server Error',
-        error: process.env.NODE_ENV === 'development' ? err.message : 'Something went wrong on our end.'
+        error: process.env.NODE_ENV === 'development' ? err.message : 'Detailed error in server logs.'
     });
 });
 
@@ -78,6 +78,12 @@ app.get('/api/health', (req, res) => {
 
 app.get('/', (req, res) => {
     res.send('Grocery Store API is running...');
+});
+
+// --- 3.5 Catch-all 404 Logging (Must be last) ---
+app.use((req, res) => {
+    console.warn(`[404 Not Found] ${req.method} ${req.url}`);
+    res.status(404).json({ message: `Route ${req.method} ${req.url} not found on this server.` });
 });
 
 // --- 4. Database Connection ---
