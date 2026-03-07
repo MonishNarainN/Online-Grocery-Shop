@@ -8,7 +8,14 @@ const { spawn } = require('child_process');
 const { createProxyMiddleware } = require('http-proxy-middleware');
 
 const app = express();
-const PORT = process.env.PORT || 10000; // Default to 10000 for Render
+const PORT = process.env.PORT || 10000;
+
+// --- URL Normalization (Fixes double-slash issues like //api/auth) ---
+app.use((req, res, next) => {
+    // Replace multiple slashes with a single slash (except for the protocol)
+    req.url = req.url.replace(/\/+/g, '/');
+    next();
+});
 
 // --- 1. Robust CORS Middleware ---
 app.use(cors({
