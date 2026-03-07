@@ -62,7 +62,7 @@ export default function Admin() {
 
   const fetchSettings = async () => {
     try {
-      const response = await fetch('${API_URL}/settings');
+      const response = await fetch(`${API_URL}/settings`);
       if (response.ok) {
         const data = await response.json();
         setStoreOnline(data.is_online);
@@ -106,7 +106,7 @@ export default function Admin() {
         isoString = dt.toISOString();
       }
 
-      const response = await fetch('${API_URL}/settings', {
+      const response = await fetch(`${API_URL}/settings`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -131,7 +131,7 @@ export default function Admin() {
 
   const fetchUsers = async () => {
     try {
-      const response = await fetch('${API_URL}/auth/admin/all', {
+      const response = await fetch(`${API_URL}/auth/admin/all`, {
         headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
       });
       if (!response.ok) {
@@ -149,7 +149,7 @@ export default function Admin() {
 
   const fetchProducts = async () => {
     try {
-      const response = await fetch('${API_URL}/products');
+      const response = await fetch(`${API_URL}/products`);
       const data = await response.json();
       setProducts(data || []);
     } catch (error) {
@@ -159,7 +159,7 @@ export default function Admin() {
 
   const fetchOrders = async () => {
     try {
-      const response = await fetch('${API_URL}/orders/admin/all', {
+      const response = await fetch(`${API_URL}/orders/admin/all`, {
         headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
       });
       if (!response.ok) {
@@ -190,7 +190,7 @@ export default function Admin() {
     try {
       const url = editingProduct
         ? `${API_URL}/products/${editingProduct.id}`
-        : '${API_URL}/products';
+        : `${API_URL}/products`;
 
       const response = await fetch(url, {
         method: editingProduct ? 'PUT' : 'POST',
@@ -296,7 +296,7 @@ export default function Admin() {
 
   const fetchPromotions = async () => {
     try {
-      const response = await fetch('${API_URL}/promotions/admin', {
+      const response = await fetch(`${API_URL}/promotions/admin`, {
         headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
       });
       if (!response.ok) {
@@ -328,7 +328,7 @@ export default function Admin() {
     try {
       const url = editingPromo
         ? `${API_URL}/promotions/${editingPromo.id}`
-        : '${API_URL}/promotions';
+        : `${API_URL}/promotions`;
 
       const response = await fetch(url, {
         method: editingPromo ? 'PUT' : 'POST',

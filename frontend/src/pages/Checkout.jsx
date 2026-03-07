@@ -49,12 +49,12 @@ export default function Checkout() {
       }
 
       // 2. Fetch Razorpay key
-      const configRes = await fetch('${API_URL}/payment/config');
+      const configRes = await fetch(`${API_URL}/payment/config`);
       if (!configRes.ok) throw new Error('Could not fetch payment config');
       const { key_id } = await configRes.json();
 
       // 3. Create Razorpay order on backend
-      const orderRes = await fetch('${API_URL}/payment/create-order', {
+      const orderRes = await fetch(`${API_URL}/payment/create-order`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -88,7 +88,7 @@ export default function Checkout() {
         handler: async function (response) {
           try {
             // 5. Verify Signature on backend
-            const verifyRes = await fetch('${API_URL}/payment/verify', {
+            const verifyRes = await fetch(`${API_URL}/payment/verify`, {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
@@ -120,7 +120,7 @@ export default function Checkout() {
                 user_id: user.id,
               };
 
-              const finalOrderRes = await fetch('${API_URL}/orders', {
+              const finalOrderRes = await fetch(`${API_URL}/orders`, {
                 method: 'POST',
                 headers: {
                   'Content-Type': 'application/json',

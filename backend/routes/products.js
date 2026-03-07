@@ -40,7 +40,7 @@ router.post('/', auth, upload.single('image'), async (req, res) => {
         };
 
         if (req.file) {
-            productData.image_url = `http://localhost:5000/uploads/${req.file.filename}`;
+            productData.image_url = `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`;
         }
 
         const product = new Product(productData);
@@ -69,7 +69,7 @@ router.put('/:id', auth, upload.single('image'), async (req, res) => {
         }
 
         if (req.file) {
-            productData.image_url = `http://localhost:5000/uploads/${req.file.filename}`;
+            productData.image_url = `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`;
         }
 
         const product = await Product.findByIdAndUpdate(req.params.id, productData, { new: true });
