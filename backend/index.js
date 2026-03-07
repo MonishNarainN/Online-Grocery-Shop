@@ -10,13 +10,21 @@ const { createProxyMiddleware } = require('http-proxy-middleware');
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Middleware
+// --- 1. Robust CORS Middleware ---
 app.use(cors({
-    origin: '*', // For development, we allow all origins. You can restrict this to your Vercel URL later.
+    origin: true, // Dynamically allow the origin that is making the request
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
-    credentials: true
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept'],
+    credentials: true,
+    optionsSuccessStatus: 200 // Some legacy browsers choke on 204
 }));
+
+// --- 2. Request Logger (Helpful for debugging) ---
+app.use((req, res, next) => {
+    console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
+    next();
+});
+
 app.use(express.json());
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
@@ -29,16 +37,32 @@ app.use('/api/payment', require('./routes/payment'));
 app.use('/api/settings', require('./routes/settings'));
 
 // Proxy for Chatbot (Python running internally on 5001)
-app.use('/api/chat', createProxyMiddleware({
+app.use('/api/chat', (req, res, next) => {
+    // Ensure CORS headers are present even on proxy failure
+    res.header('Access-Control-Allow-Origin', req.headers.origin || '*');
+    res.header('Access-Control-Allow-Credentials', 'true');
+    next();
+}, createProxyMiddleware({
     target: 'http://127.0.0.1:5001',
     changeOrigin: true,
     pathRewrite: {
-        '^/api/chat': '/api/chat', // Keep the path as is
+        '^/api/chat': '/api/chat',
     },
     onError: (err, req, res) => {
-        res.status(502).json({ response: "Chatbot is still starting up... Please try again in a few seconds." });
+        console.error('[Proxy Error]:', err);
+        res.status(502).json({ response: "Chatbot is still starting up or unavailable. Please try again." });
     }
 }));
+
+// --- 3. Global Error Handler (Prevents "CORS Blocked" on 500 errors) ---
+app.use((err, req, res, next) => {
+    console.error('[Global Error]:', err.stack);
+    res.header('Access-Control-Allow-Origin', req.headers.origin || '*'); // Ensure CORS on error
+    res.status(500).json({
+        message: 'Internal Server Error',
+        error: process.env.NODE_ENV === 'development' ? err.message : 'Something went wrong on our end.'
+    });
+});
 
 app.get('/api/health', (req, res) => {
     const state = mongoose.connection.readyState;
