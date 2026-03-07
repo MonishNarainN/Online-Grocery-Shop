@@ -23,6 +23,10 @@ encoder = SentenceTransformer('all-MiniLM-L6-v2')
 gc.collect()
 print("Chatbot API is ready.")
 
+@app.route('/', methods=['GET', 'HEAD'])
+def health_check():
+    return jsonify({"status": "healthy"}), 200
+
 @app.route('/api/chat', methods=['POST'])
 def chat():
     data = request.json
