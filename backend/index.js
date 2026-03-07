@@ -80,56 +80,51 @@ app.get('/', (req, res) => {
     res.send('Grocery Store API is running...');
 });
 
-// Start Server
-app.listen(PORT, () => {
-    console.log(`🚀 Server is running on port ${PORT}`);
+// --- 4. Database Connection ---
+if (process.env.MONGODB_URI) {
+    console.log('⏳ Connecting to MongoDB Atlas...');
+    mongoose.connect(process.env.MONGODB_URI)
+        .then(async () => {
+            console.log('✅ Connected to MongoDB Atlas');
 
-    // Environment Variable Checks
-    const requiredEnv = ['MONGODB_URI', 'JWT_SECRET'];
-    requiredEnv.forEach(env => {
-        if (!process.env[env]) {
-            console.error(`❌ ERROR: ${env} is not defined in environment variables!`);
-        }
-    });
+            // One-time Admin Seeder
+            try {
+                const User = require('./models/User');
+                const adminEmail = 'rajarajeshwari@gmail.com';
+                const existingAdmin = await User.findOne({ email: adminEmail });
 
-    if (process.env.MONGODB_URI) {
-        mongoose.connect(process.env.MONGODB_URI)
-            .then(async () => {
-                console.log('✅ Connected to MongoDB Atlas');
-
-                // One-time Admin Seeder
-                try {
-                    const User = require('./models/User');
-                    const adminEmail = 'rajarajeshwari@gmail.com';
-                    const existingAdmin = await User.findOne({ email: adminEmail });
-
-                    if (!existingAdmin) {
-                        console.log('🚀 Creating default Admin account...');
-                        const newAdmin = new User({
-                            name: 'Main Admin',
-                            email: adminEmail,
-                            password: 'Admin@123',
-                            role: 'admin',
-                            isVerified: true
-                        });
-                        await newAdmin.save();
-                        console.log('✅ Admin account created successfully!');
-                    } else {
-                        console.log('ℹ️ Admin account already exists.');
-                    }
-                } catch (seederErr) {
-                    console.error('❌ Admin seeder error:', seederErr.message);
+                if (!existingAdmin) {
+                    console.log('🚀 Creating default Admin account...');
+                    const newAdmin = new User({
+                        name: 'Main Admin',
+                        email: adminEmail,
+                        password: 'Admin@123',
+                        role: 'admin',
+                        isVerified: true
+                    });
+                    await newAdmin.save();
+                    console.log('✅ Admin account created successfully!');
+                } else {
+                    console.log('ℹ️ Admin account already exists.');
                 }
-            })
-            .catch(err => console.error('❌ MongoDB connection error:', err.message));
-    }
+            } catch (seederErr) {
+                console.error('❌ Admin seeder error:', seederErr.message);
+            }
+        })
+        .catch(err => {
+            console.error('❌ MongoDB connection error:', err.message);
+            // Don't exit - let the server start so we can see the health check status
+        });
+} else {
+    console.warn('⚠️ MONGODB_URI not found. Database features will be disabled.');
+}
 
-    // --- Spawn Python Chatbot ---
+// --- 5. Spawn Python Chatbot ---
+function startChatbot() {
     console.log('🐍 Starting Python Chatbot process...');
 
-    // In Docker (Linux), it's 'python3'. On Windows locally, it's 'python'.
+    // In Docker (Linux), it's usually 'python3'. On Windows locally, it's 'python'.
     const pythonCmd = process.platform === 'win32' ? 'python' : 'python3';
-
     const chatbotDir = path.join(__dirname, 'chatbot');
     const chatbotScript = 'chatbot_api.py';
 
@@ -142,15 +137,43 @@ app.listen(PORT, () => {
     });
 
     chatbot.stdout.on('data', (data) => {
-        console.log(`[Chatbot]: ${data}`);
+        console.log(`[Chatbot]: ${data.toString().trim()}`);
     });
 
     chatbot.stderr.on('data', (data) => {
-        console.error(`[Chatbot Error]: ${data}`);
+        console.error(`[Chatbot Error]: ${data.toString().trim()}`);
+    });
+
+    chatbot.on('error', (err) => {
+        console.error('❌ Failed to start Chatbot process:', err.message);
+        console.log('ℹ️ Ensure Python and dependencies are installed correctly.');
     });
 
     chatbot.on('close', (code) => {
         console.log(`[Chatbot]: Process exited with code ${code}`);
+        if (code !== 0) {
+            console.log('🔄 Attempting to restart chatbot in 10 seconds...');
+            setTimeout(startChatbot, 10000);
+        }
+    });
+
+    return chatbot;
+}
+
+// Start chatbot
+let chatbotProcess = startChatbot();
+
+// --- 6. Start Server ---
+app.listen(PORT, '0.0.0.0', () => {
+    console.log(`🚀 Server is running on port ${PORT}`);
+    console.log(`🌍 Health check available at /api/health`);
+
+    // Environment Variable Checks
+    const requiredEnv = ['MONGODB_URI', 'JWT_SECRET'];
+    requiredEnv.forEach(env => {
+        if (!process.env[env]) {
+            console.error(`❌ CRITICAL: ${env} is missing from environment variables!`);
+        }
     });
 });
 

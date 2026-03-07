@@ -9,13 +9,18 @@ from flask_cors import CORS
 app = Flask(__name__)
 CORS(app)
 
+import gc
+
 print("Loading model and dataset...")
 model_data = joblib.load('meal_chatbot.pkl')
 dataset = model_data['dataset']
 embeddings = model_data['embeddings']
+del model_data # Clean up the dictionary wrapper
+gc.collect()
 
 print("Loading SentenceTransformer ('all-MiniLM-L6-v2')...")
 encoder = SentenceTransformer('all-MiniLM-L6-v2')
+gc.collect()
 print("Chatbot API is ready.")
 
 @app.route('/api/chat', methods=['POST'])
