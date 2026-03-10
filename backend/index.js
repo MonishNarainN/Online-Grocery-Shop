@@ -20,7 +20,7 @@ app.use((req, res, next) => {
 // --- 1. Robust CORS Middleware ---
 app.use(cors({
     origin: true, // Dynamically allow the origin that is making the request
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept'],
     credentials: true,
     optionsSuccessStatus: 200 // Some legacy browsers choke on 204
