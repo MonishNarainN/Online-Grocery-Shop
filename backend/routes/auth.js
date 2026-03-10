@@ -51,25 +51,19 @@ router.post('/register', async (req, res) => {
             user.verificationCode = code;
             user.isVerified = false;
 
-            // Send email
-            logToFile('Attempting to send verification email to:', email); // Debug log
-            const emailResult = await sendVerificationEmail(email, code);
-            logToFile('Email result:', emailResult); // Debug log
-
-            if (!emailResult.success) {
-                logToFile(`Email sending failed: ${JSON.stringify(emailResult.error)}`); // Debug log with error
-
-                // In development, handle gracefully
-                // Check for development environment or if specific env var is set
-                if (process.env.NODE_ENV === 'development' || !process.env.NODE_ENV) {
-                    const msg = `DEV MODE: Verification Code for ${email}: ${code}`;
-                    console.log(msg);
-                    logToFile(msg);
-                    // Proceed as if success - do NOT return error
-                } else {
-                    return res.status(500).json({ message: `Error sending verification email: ${emailResult.error}` });
+            // Send email asynchronously (non-blocking)
+            logToFile('Attempting to send verification email to:', email);
+            sendVerificationEmail(email, code).then(emailResult => {
+                logToFile('Email result:', emailResult);
+                if (!emailResult.success) {
+                    logToFile(`Email sending failed: ${JSON.stringify(emailResult.error)}`);
+                    if (process.env.NODE_ENV === 'development' || !process.env.NODE_ENV) {
+                        console.log(`DEV MODE: Verification Code for ${email}: ${code}`);
+                    }
                 }
-            }
+            }).catch(err => {
+                logToFile('Email promise error:', err);
+            });
         }
 
         await user.save();
@@ -147,17 +141,16 @@ router.post('/forgot-password', async (req, res) => {
         user.verificationCode = code;
         await user.save();
 
-        // Send email
-        const emailResult = await sendPasswordResetEmail(email, code);
-
-        if (!emailResult.success) {
-            if (process.env.NODE_ENV === 'development' || !process.env.NODE_ENV) {
-                console.log(`DEV MODE: Password Reset Code for ${email}: ${code}`);
-                // Proceed as if success
-            } else {
-                return res.status(500).json({ message: `Error sending password reset email: ${emailResult.error}` });
+        // Send email asynchronously (non-blocking)
+        sendPasswordResetEmail(email, code).then(emailResult => {
+            if (!emailResult.success) {
+                if (process.env.NODE_ENV === 'development' || !process.env.NODE_ENV) {
+                    console.log(`DEV MODE: Password Reset Code for ${email}: ${code}`);
+                }
             }
-        }
+        }).catch(err => {
+            console.error('Password reset email error:', err);
+        });
 
         res.json({ message: 'Password reset code sent to your email.' });
     } catch (err) {

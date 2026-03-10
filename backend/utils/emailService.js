@@ -1,24 +1,25 @@
 const nodemailer = require('nodemailer');
 
+// Create a single transporter instance (Reverting pooling for reliability)
+const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS
+    }
+});
+
+// Verify connection configuration on startup
+transporter.verify((error, success) => {
+    if (error) {
+        console.error('SMTP Connection Error:', error);
+    } else {
+        console.log('SMTP Server is ready to take our messages');
+    }
+});
+
 const sendVerificationEmail = async (email, code) => {
     try {
-        const transporter = nodemailer.createTransport({
-            service: 'gmail',
-            port: 587, // Try STARTTLS port
-            secure: false, // secure:false for STARTTLS on port 587
-            auth: {
-                user: process.env.EMAIL_USER,
-                pass: process.env.EMAIL_PASS
-            },
-            connectionTimeout: 10000,
-            logger: true,
-            debug: true,
-            socketTimeout: 10000,
-            dnsTimeout: 5000,
-            tls: {
-                rejectUnauthorized: false
-            }
-        });
 
         const mailOptions = {
             from: process.env.EMAIL_USER,
@@ -49,21 +50,6 @@ const sendVerificationEmail = async (email, code) => {
 
 const sendPasswordResetEmail = async (email, code) => {
     try {
-        const transporter = nodemailer.createTransport({
-            service: 'gmail',
-            port: 587,
-            secure: false, // secure:false for STARTTLS on port 587
-            auth: {
-                user: process.env.EMAIL_USER,
-                pass: process.env.EMAIL_PASS
-            },
-            connectionTimeout: 10000,
-            socketTimeout: 10000,
-            dnsTimeout: 5000,
-            tls: {
-                rejectUnauthorized: false
-            }
-        });
 
         const mailOptions = {
             from: process.env.EMAIL_USER,
@@ -94,21 +80,6 @@ const sendPasswordResetEmail = async (email, code) => {
 
 const sendAdminNotificationEmail = async (email, name, role) => {
     try {
-        const transporter = nodemailer.createTransport({
-            service: 'gmail',
-            port: 587,
-            secure: false, // Use STARTTLS
-            auth: {
-                user: process.env.EMAIL_USER,
-                pass: process.env.EMAIL_PASS
-            },
-            connectionTimeout: 10000,
-            socketTimeout: 10000,
-            dnsTimeout: 5000,
-            tls: {
-                rejectUnauthorized: false
-            }
-        });
 
         const isPromoted = role === 'admin';
         const subject = isPromoted
@@ -159,21 +130,6 @@ const sendAdminNotificationEmail = async (email, name, role) => {
 
 const sendOrderConfirmationEmail = async (email, name, order) => {
     try {
-        const transporter = nodemailer.createTransport({
-            service: 'gmail',
-            port: 587,
-            secure: false, // Use STARTTLS
-            auth: {
-                user: process.env.EMAIL_USER,
-                pass: process.env.EMAIL_PASS
-            },
-            connectionTimeout: 10000,
-            socketTimeout: 10000,
-            dnsTimeout: 5000,
-            tls: {
-                rejectUnauthorized: false
-            }
-        });
 
         // Generate items HTML
         const itemsHtml = order.items.map(item => `
