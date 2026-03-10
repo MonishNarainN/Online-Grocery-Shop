@@ -2,7 +2,9 @@ const nodemailer = require('nodemailer');
 
 // Create a single transporter instance (Reverting pooling for reliability)
 const transporter = nodemailer.createTransport({
-    service: 'gmail',
+    host: 'smtp.gmail.com',
+    port: 587,
+    secure: false, // Use STARTTLS on port 587
     auth: {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS
