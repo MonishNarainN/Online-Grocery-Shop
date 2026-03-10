@@ -77,6 +77,38 @@ router.patch('/:id/status', auth, async (req, res) => {
     }
 });
 
+// Customer: Cancel order
+router.patch('/:id/cancel', auth, async (req, res) => {
+    try {
+        const order = await Order.findById(req.params.id);
+
+        if (!order) {
+            return res.status(404).json({ message: 'Order not found' });
+        }
+
+        // Verify user owns the order
+        if (order.user_id.toString() !== req.user.id) {
+            return res.status(403).json({ message: 'Not authorized to cancel this order' });
+        }
+
+        // Check if order can be cancelled
+        const nonCancellableStatuses = ['shipped', 'delivered', 'cancelled'];
+        if (nonCancellableStatuses.includes(order.order_status)) {
+            return res.status(400).json({
+                message: `Order cannot be cancelled as it is already ${order.order_status}`
+            });
+        }
+
+        order.order_status = 'cancelled';
+        await order.save();
+
+        res.json({ message: 'Order cancelled successfully', order });
+    } catch (err) {
+        console.error('Error cancelling order:', err);
+        res.status(500).json({ message: 'Error cancelling order' });
+    }
+});
+
 const { generateOrderPdf } = require('../utils/pdfService');
 
 // Get Order PDF Bill

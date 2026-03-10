@@ -3,8 +3,9 @@ import { Link } from 'react-router-dom';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Download } from 'lucide-react';
+import { Download, XCircle } from 'lucide-react';
 import { format } from 'date-fns';
+import { toast } from 'sonner';
 import { API_URL } from '@/config';
 
 
@@ -43,6 +44,32 @@ export function OrderCard({ order }) {
       document.body.removeChild(a);
     } catch (error) {
       console.error('Error downloading bill:', error);
+      toast.error('Failed to download bill');
+    }
+  };
+
+  const handleCancelOrder = async (e) => {
+    e.stopPropagation();
+    if (!window.confirm('Are you sure you want to cancel this order?')) return;
+
+    try {
+      const response = await fetch(`${API_URL}/orders/${order.id}/cancel`, {
+        method: 'PATCH',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message || 'Failed to cancel order');
+
+      toast.success('Order cancelled successfully');
+      // Trigger a page refresh to update order status
+      window.location.reload();
+    } catch (error) {
+      console.error('Error cancelling order:', error);
+      toast.error(error.message || 'An error occurred while cancelling the order');
     }
   };
 
@@ -68,13 +95,18 @@ export function OrderCard({ order }) {
           </div>
         </div>
 
-        {order.payment_status === 'paid' && (
-          <div className="mt-4 flex justify-end">
+        <div className="mt-4 flex flex-wrap justify-end gap-2">
+          {['pending', 'processing'].includes(order.order_status) && (
+            <Button size="sm" variant="destructive" className="text-xs flex items-center gap-1" onClick={handleCancelOrder}>
+              <XCircle className="h-3 w-3" /> Cancel Order
+            </Button>
+          )}
+          {order.payment_status === 'paid' && (
             <Button size="sm" variant="outline" className="text-xs flex items-center gap-1" onClick={handleDownloadBill}>
               <Download className="h-3 w-3" /> Download Bill
             </Button>
-          </div>
-        )}
+          )}
+        </div>
       </CardHeader>
       <CardContent>
         {/* Items Preview */}
