@@ -9,6 +9,8 @@ const transporter = nodemailer.createTransport({
         user: process.env.EMAIL_USER,
         pass: (process.env.EMAIL_PASS || '').replace(/\s+/g, '')
     },
+    // Force IPv4 to avoid ENETUNREACH errors with IPv6 on Render
+    family: 4,
     // Adding pool for efficiency in cloud environments
     pool: true,
     maxConnections: 3,
