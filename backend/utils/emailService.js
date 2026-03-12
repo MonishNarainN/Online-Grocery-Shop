@@ -2,19 +2,33 @@ const nodemailer = require('nodemailer');
 
 // Create a single transporter instance (Reverting pooling for reliability)
 const transporter = nodemailer.createTransport({
-    service: 'gmail',
+    host: 'smtp.gmail.com',
+    port: 465,
+    secure: true, // Use SSL/TLS
     auth: {
         user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS
-    }
+        pass: (process.env.EMAIL_PASS || '').replace(/\s+/g, '')
+    },
+    // Adding pool for efficiency in cloud environments
+    pool: true,
+    maxConnections: 3,
+    maxMessages: 100,
+    // Increase timeouts for slow network environments like Render
+    connectionTimeout: 10000, // 10 seconds
+    greetingTimeout: 10000,   // 10 seconds
+    socketTimeout: 30000      // 30 seconds
 });
 
-// Verify connection configuration on startup
 transporter.verify((error, success) => {
     if (error) {
-        console.error('SMTP Connection Error:', error);
+        console.error('--- SMTP Connection Error (Detailed) ---');
+        console.error('Error Code:', error.code);
+        console.error('Command:', error.command);
+        console.error('Message:', error.message);
+        if (error.response) console.error('Server Response:', error.response);
+        console.error('-----------------------------------------');
     } else {
-        console.log('SMTP Server is ready to take our messages');
+        console.log('✅ SMTP Server is ready (smtp.gmail.com:465)');
     }
 });
 

@@ -1,5 +1,5 @@
-const { sendVerificationEmail } = require('./utils/emailService');
 require('dotenv').config();
+const { sendVerificationEmail } = require('./utils/emailService');
 
 async function testSpeed() {
     console.log('--- Starting Email Speed Test ---');
