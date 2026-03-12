@@ -3,8 +3,8 @@ const nodemailer = require('nodemailer');
 // Create a single transporter instance (Reverting pooling for reliability)
 const transporter = nodemailer.createTransport({
     host: 'smtp.gmail.com',
-    port: 465,
-    secure: true, // Use SSL/TLS
+    port: 587,
+    secure: false, // Use STARTTLS
     auth: {
         user: process.env.EMAIL_USER,
         pass: (process.env.EMAIL_PASS || '').replace(/\s+/g, '')
@@ -28,7 +28,7 @@ transporter.verify((error, success) => {
         if (error.response) console.error('Server Response:', error.response);
         console.error('-----------------------------------------');
     } else {
-        console.log('✅ SMTP Server is ready (smtp.gmail.com:465)');
+        console.log('✅ SMTP Server is ready (smtp.gmail.com:587)');
     }
 });
 
