@@ -9,10 +9,22 @@ const { sendVerificationEmail, sendPasswordResetEmail, sendAdminNotificationEmai
 const fs = require('fs');
 const path = require('path');
 
-const logToFile = (message) => {
-    const logPath = path.join(__dirname, '../debug.log');
+const logToFile = (message, ...args) => {
+    const isVercel = process.env.VERCEL === '1' || process.env.VERCEL === 'true' || !!process.env.VERCEL;
     const timestamp = new Date().toISOString();
-    fs.appendFileSync(logPath, `${timestamp} - ${message}\n`);
+    
+    if (isVercel) {
+        console.log(`[Vercel Log] ${timestamp} - ${message}`, ...args);
+        return;
+    }
+
+    try {
+        const logPath = path.join(__dirname, '../debug.log');
+        fs.appendFileSync(logPath, `${timestamp} - ${message} ${args.length ? JSON.stringify(args) : ''}\n`);
+    } catch (err) {
+        console.error('Failed to write to log file:', err.message);
+        console.log(`[Fallback Log] ${timestamp} - ${message}`, ...args);
+    }
 };
 
 // Register

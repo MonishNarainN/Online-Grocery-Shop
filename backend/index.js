@@ -126,6 +126,7 @@ if (process.env.MONGODB_URI) {
         })
         .catch(err => {
             console.error('❌ MongoDB connection error:', err.message);
+            console.error('Full connection error detail:', err);
             // Don't exit - let the server start so we can see the health check status
         });
 } else {
