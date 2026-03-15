@@ -174,20 +174,26 @@ function startChatbot() {
 }
 
 // Start chatbot
-let chatbotProcess = startChatbot();
+if (!process.env.VERCEL && require.main === module) {
+    let chatbotProcess = startChatbot();
+} else if (process.env.VERCEL) {
+    console.log('ℹ️ Chatbot is disabled on Vercel.');
+}
 
 // --- 6. Start Server ---
-app.listen(PORT, '0.0.0.0', () => {
-    console.log(`🚀 Server is running on port ${PORT}`);
-    console.log(`🌍 Health check available at /api/health`);
+if (require.main === module) {
+    app.listen(PORT, '0.0.0.0', () => {
+        console.log(`🚀 Server is running on port ${PORT}`);
+        console.log(`🌍 Health check available at /api/health`);
 
-    // Environment Variable Checks
-    const requiredEnv = ['MONGODB_URI', 'JWT_SECRET'];
-    requiredEnv.forEach(env => {
-        if (!process.env[env]) {
-            console.error(`❌ CRITICAL: ${env} is missing from environment variables!`);
-        }
+        // Environment Variable Checks
+        const requiredEnv = ['MONGODB_URI', 'JWT_SECRET'];
+        requiredEnv.forEach(env => {
+            if (!process.env[env]) {
+                console.error(`❌ CRITICAL: ${env} is missing from environment variables!`);
+            }
+        });
     });
-});
+}
 
 module.exports = app;

@@ -5,7 +5,7 @@ const getApiUrl = () => {
 
     // Fallback if env is broken or undefined
     if (!envUrl || envUrl.includes('${API_URL}') || envUrl.includes('undefined')) {
-        return RENDER_URL + '/api';
+        return '/api';
     }
 
     // --- Normalization Logic ---
