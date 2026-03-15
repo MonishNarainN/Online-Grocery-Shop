@@ -2,6 +2,8 @@ const mongoose = require('mongoose');
 const Product = require('./models/Product');
 require('dotenv').config();
 
+const BASE_URL = process.env.BASE_URL || 'http://localhost:10000';
+
 const products = [
     // Fresh Produce
     {

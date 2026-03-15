@@ -9,16 +9,14 @@ const transporter = nodemailer.createTransport({
         user: process.env.EMAIL_USER,
         pass: (process.env.EMAIL_PASS || '').replace(/\s+/g, '')
     },
-    // Force IPv4 to avoid ENETUNREACH errors with IPv6 on Render
-    family: 4,
-    // Adding pool for efficiency in cloud environments
+    // Adding pool for efficiency in serverless/cloud environments
     pool: true,
     maxConnections: 3,
     maxMessages: 100,
-    // Increase timeouts for slow network environments like Render
-    connectionTimeout: 10000, // 10 seconds
-    greetingTimeout: 10000,   // 10 seconds
-    socketTimeout: 30000      // 30 seconds
+    // Standard timeouts
+    connectionTimeout: 10000,
+    greetingTimeout: 10000,
+    socketTimeout: 30000
 });
 
 transporter.verify((error, success) => {
