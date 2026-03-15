@@ -10,6 +10,13 @@ const { createProxyMiddleware } = require('http-proxy-middleware');
 const app = express();
 const PORT = process.env.PORT || 10000;
 
+console.log('🚀 Environment Diagnostic:', {
+    isVercel: !!process.env.VERCEL,
+    hasMongo: !!process.env.MONGODB_URI,
+    hasJwt: !!process.env.JWT_SECRET,
+    nodeEnv: process.env.NODE_ENV
+});
+
 // --- URL Normalization (Fixes double-slash issues like //api/auth) ---
 app.use((req, res, next) => {
     // Replace multiple slashes with a single slash (except for the protocol)
