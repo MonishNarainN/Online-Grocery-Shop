@@ -1,4 +1,4 @@
-const RENDER_URL = 'https://online-grocery-shop-8b3u.onrender.com';
+// Finalized Vercel configuration - using relative paths for unified deployment
 
 const getApiUrl = () => {
     let envUrl = import.meta.env.VITE_API_URL || '';
@@ -21,7 +21,7 @@ const getApiUrl = () => {
 };
 
 export const API_URL = getApiUrl();
-export const BASE_URL = (import.meta.env.VITE_BASE_URL || RENDER_URL).replace(/\/+$/, '');
+export const BASE_URL = (import.meta.env.VITE_BASE_URL || (typeof window !== 'undefined' ? window.location.origin : '')).replace(/\/+$/, '');
 export const CHAT_API_URL = import.meta.env.VITE_CHAT_API_URL || API_URL.replace(/\/api$/, '') + '/api/chat';
 
 console.log('Config loaded:', { API_URL, BASE_URL });
