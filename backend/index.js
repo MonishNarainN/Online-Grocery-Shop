@@ -130,6 +130,23 @@ if (process.env.MONGODB_URI) {
             } catch (seederErr) {
                 console.error('❌ Admin seeder error:', seederErr.message);
             }
+
+            // --- One-time Product Seeder ---
+            try {
+                const Product = require('./models/Product');
+                const initialProducts = require('./initialData');
+                const productCount = await Product.countDocuments();
+
+                if (productCount === 0) {
+                    console.log('🚀 DB is empty. Seeding initial product list...');
+                    await Product.insertMany(initialProducts);
+                    console.log(`✅ Successfully seeded ${initialProducts.length} products!`);
+                } else {
+                    console.log(`ℹ️ Product list already contains ${productCount} items.`);
+                }
+            } catch (productSeederErr) {
+                console.error('❌ Product seeder error:', productSeederErr.message);
+            }
         })
         .catch(err => {
             console.error('❌ MongoDB connection error:', err.message);
